@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Component</title>
+  <style>
+    .quiz-question {
+      margin-bottom: 15px;
+    }
+    .quiz-answers {
+      margin-bottom: 15px;
+    }
+    .quiz-answers input[type="radio"] {
+      margin-right: 10px;
+    }
+    .quiz-submission {
+      display: none;
+    }
+    .quiz-submitted {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.16.6/babel.min.js"></script>
+
+  <script type="text/babel">
+    function Quiz() {
+      const [selectedAnswers, setSelectedAnswers] = React.useState(
+        new Array(3).fill(null)
+      );
+      const [quizSubmitted, setQuizSubmitted] = React.useState(false);
+      const [score, setScore] = React.useState(0);
+
+      const questions = [
+        {
+          question: 'What is the capital of France?',
+          answers: ['Paris', 'London', 'Berlin', 'Madrid'],
+          correctAnswer: 0,
+        },
+        {
+          question: 'Which planet is closest to the sun?',
+          answers: ['Mercury', 'Venus', 'Earth', 'Mars'],
+          correctAnswer: 0,
+        },
+        {
+          question: 'Which programming language is used for this example?',
+          answers: ['Python', 'JavaScript', 'Java', 'C#'],
+          correctAnswer: 1,
+        },
+      ];
+
+      const handleAnswerChange = (index, answerIndex) => {
+        setSelectedAnswers((prevSelectedAnswers) => {
+          const newSelectedAnswers = [...prevSelectedAnswers];
+          newSelectedAnswers[index] = answerIndex;
+          return newSelectedAnswers;
+        });
+      };
+
+      const handleSubmit = (event) => {
+        event.preventDefault();
+        let newScore = 0;
+        selectedAnswers.forEach((answerIndex, questionIndex) => {
+          if (answerIndex === questions[questionIndex].correctAnswer) {
+            newScore++;
+          }
+        });
+        setScore(newScore);
+        setQuizSubmitted(true);
+      };
+
+      const handleRestart = () => {
+        setSelectedAnswers(new Array(3).fill(null));
+        setQuizSubmitted(false);
+        setScore(0);
+      };
+
+      return (
+        <div>
+          {quizSubmitted ? (
+            <div className="quiz-submitted">
+              <h2>Your Score: {score}</h2>
+              <button onClick={handleRestart}>Restart Quiz</button>
+            </div>
+          ) : (
+            <form className="quiz-questions" onSubmit={handleSubmit}>
+              {questions.map((question, index) => (
+                <div key={index} className="quiz-question">
+                  <h3>{question.question}</h3>
+                  <div className="quiz-answers">
+                    {question.answers.map((answer, answerIndex) => (
+                      <div key={answerIndex}>
+                        <input
+                          type="radio"
+                          id={`question-${index}-answer-${answerIndex}`}
+                          name={`question-${index}`}
+                          value={answerIndex}
+                          checked={selectedAnswers[index] === answerIndex}
+                          onChange={() => handleAnswerChange(index, answerIndex)}
+                        />
+                        <label
+                          htmlFor={`question-${index}-answer-${answerIndex}`}
+                        >
+                          {answer}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <button type="submit">Submit Quiz</button>
+            </form>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.render(<Quiz />, document.getElementById('root'));
+  </script>
+</body>
+</html>
